@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:correction_auto/core/theme/app_colors.dart';
 import 'package:correction_auto/presentation/bloc/theme/theme_bloc.dart';
-import 'package:correction_auto/presentation/pages/create_reference_page.dart';
+import 'package:correction_auto/features/reference_management/presentation/create_reference_page.dart';
 import 'package:correction_auto/presentation/pages/correction_page.dart';
 import 'package:correction_auto/presentation/pages/statistics_page.dart';
 import 'package:correction_auto/presentation/pages/settings_page.dart';
@@ -84,7 +84,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => const CorrectionPage(),
+                        builder: (_) => const CorrectionPageWrapper(),
                       ),
                     );
                   },
@@ -127,12 +127,15 @@ class _HomeTab extends StatelessWidget {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Correction Auto',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  Flexible(
+                    child: Text(
+                      'Correction Auto',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   Row(
                     children: [
@@ -141,7 +144,7 @@ class _HomeTab extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const StatisticsPage(),
+                              builder: (_) => const StatisticsPageWrapper(),
                             ),
                           );
                         },
@@ -214,7 +217,7 @@ class _HomeTab extends StatelessWidget {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const CorrectionPage(),
+                              builder: (_) => const CorrectionPageWrapper(),
                             ),
                           );
                         },
@@ -225,7 +228,7 @@ class _HomeTab extends StatelessWidget {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => const StatisticsPage(),
+                              builder: (_) => const StatisticsPageWrapper(),
                             ),
                           );
                         },

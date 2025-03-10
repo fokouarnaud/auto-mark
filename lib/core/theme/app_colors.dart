@@ -1,49 +1,39 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary brand color
-  static final Color primary = Color(0xFF4F6CFF);
-  static final Color primaryContainer = Color(0xFFE4EAFF);
-  
-  // Secondary
-  static final Color secondary = Color(0xFF9747FF);
-  static final Color secondaryContainer = Color(0xFFF2E7FF);
-  
-  // Accent
-  static final Color accent = Color(0xFF00C2FF);
-  static final Color accentContainer = Color(0xFFDFF6FF);
-  
-  // Functional colors
-  static final Color error = Color(0xFFFF574D);
-  static final Color success = Color(0xFF2ED573);
-  static final Color warning = Color(0xFFFFBE44);
-  static final Color info = Color(0xFF54A0FF);
-  static final Color infoContainer = Color(0xFFE4F2FF);
+  // Main colors
+  static const primary = Color(0xFF6750A4);       // Deep Purple
+  static const secondary = Color(0xFF7D5260);     // Burgundy
+  static const tertiary = Color(0xFFEFB8C8);      // Pink
+  static const primaryContainer = Color(0xFFEADDFF); // Light Purple
   
   // Light theme colors
-  static final Color backgroundLight = Color(0xFFF8F9FC);
-  static final Color surfaceLight = Color(0xFFFFFFFF);
-  static final Color textPrimaryLight = Color(0xFF1A1A2C);
-  static final Color textSecondaryLight = Color(0xFF6E7191);
-  static final Color outlineLight = Color(0xFFE2E8F0);
+  static const backgroundLight = Color(0xFFFFFBFE);
+  static const surfaceLight = Color(0xFFFFFBFE);
+  static const outlineLight = Color(0xFFCAC4D0);
+  static const textPrimaryLight = Color(0xFF1C1B1F);
+  static const textSecondaryLight = Color(0xFF49454F);
   
   // Dark theme colors
-  static final Color backgroundDark = Color(0xFF121212);
-  static final Color surfaceDark = Color(0xFF1E1E1E);
-  static final Color textPrimaryDark = Color(0xFFF7F9FC);
-  static final Color textSecondaryDark = Color(0xFFAFB5C0);
-  static final Color outlineDark = Color(0xFF2A2E3F);
+  static const backgroundDark = Color(0xFF1C1B1F);
+  static const surfaceDark = Color(0xFF2B2930);
+  static const outlineDark = Color(0xFF938F99);
+  static const textPrimaryDark = Color(0xFFE6E1E5);
+  static const textSecondaryDark = Color(0xFFCAC4D0);
   
-  // Gradients
-  static final LinearGradient primaryGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, primary.withOpacity(0.8)],
-  );
+  // Semantic colors
+  static const success = Color(0xFF4CAF50);  // Green
+  static const warning = Color(0xFFFFC107);  // Amber
+  static const error = Color(0xFFF44336);    // Red
+  static const info = Color(0xFF2196F3);     // Blue
   
-  static final LinearGradient accentGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [primary, secondary],
-  );
+  // Neutral colors
+  static const background = Color(0xFFFFFBFE);
+  static const surface = Color(0xFFFFFBFE);
+  static const onPrimary = Color(0xFFFFFFFF);
+  static const onSecondary = Color(0xFFFFFFFF);
+  static const onTertiary = Color(0xFF000000);
+  
+  // Private constructor to prevent instantiation
+  AppColors._();
 }

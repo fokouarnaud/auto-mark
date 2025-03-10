@@ -1,10 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:correction_auto/core/theme/app_colors.dart';
 import 'package:correction_auto/presentation/bloc/theme/theme_bloc.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Correction Auto',
+    packageName: 'com.example.correction_auto',
+    version: '1.0.0',
+    buildNumber: '1',
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      setState(() {
+        _packageInfo = info;
+      });
+    } catch (e) {
+      // En cas d'erreur, on conserve les valeurs par défaut
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,262 +43,243 @@ class SettingsPage extends StatelessWidget {
         title: const Text('Paramètres'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
         children: [
-          _SettingsSection(
-            title: 'Apparence',
-            children: [
-              // Theme selector
-              _SettingsTile(
-                icon: Icons.dark_mode,
-                title: 'Thème',
-                subtitle: 'Changer l\'apparence de l\'application',
-                trailing: BlocBuilder<ThemeBloc, ThemeState>(
-                  builder: (context, state) {
-                    return DropdownButton<ThemeMode>(
-                      value: state.themeMode,
-                      underline: const SizedBox.shrink(),
-                      items: [
-                        DropdownMenuItem(
-                          value: ThemeMode.system,
-                          child: Text('Système', style: Theme.of(context).textTheme.bodyMedium),
-                        ),
-                        DropdownMenuItem(
-                          value: ThemeMode.light,
-                          child: Text('Clair', style: Theme.of(context).textTheme.bodyMedium),
-                        ),
-                        DropdownMenuItem(
-                          value: ThemeMode.dark,
-                          child: Text('Sombre', style: Theme.of(context).textTheme.bodyMedium),
-                        ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          context.read<ThemeBloc>().add(SetThemeMode(value));
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-          _SettingsSection(
-            title: 'Correction',
-            children: [
-              // OCR language
-              _SettingsTile(
-                icon: Icons.translate,
-                title: 'Langue OCR',
-                subtitle: 'Langue principale pour la reconnaissance de texte',
-                trailing: DropdownButton<String>(
-                  value: 'fr',
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    DropdownMenuItem(
-                      value: 'fr',
-                      child: Text('Français', style: Theme.of(context).textTheme.bodyMedium),
-                    ),
-                    DropdownMenuItem(
-                      value: 'en',
-                      child: Text('Anglais', style: Theme.of(context).textTheme.bodyMedium),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    // Update OCR language preference
-                  },
-                ),
-              ),
-              
-              // Comparison threshold
-              _SettingsTile(
-                icon: Icons.tune,
-                title: 'Seuil de similarité',
-                subtitle: 'Seuil minimum pour considérer une réponse comme correcte',
-                trailing: DropdownButton<int>(
-                  value: 75,
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    for (int i = 50; i <= 90; i += 5)
-                      DropdownMenuItem(
-                        value: i,
-                        child: Text('$i%', style: Theme.of(context).textTheme.bodyMedium),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    // Update threshold preference
-                  },
-                ),
-              ),
-            ],
-          ),
-          _SettingsSection(
-            title: 'Exportation',
-            children: [
-              // Export format
-              _SettingsTile(
-                icon: Icons.file_present,
-                title: 'Format d\'export',
-                subtitle: 'Format par défaut pour l\'exportation des résultats',
-                trailing: DropdownButton<String>(
-                  value: 'pdf',
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    DropdownMenuItem(
-                      value: 'pdf',
-                      child: Text('PDF', style: Theme.of(context).textTheme.bodyMedium),
-                    ),
-                    DropdownMenuItem(
-                      value: 'csv',
-                      child: Text('CSV', style: Theme.of(context).textTheme.bodyMedium),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    // Update export format preference
-                  },
-                ),
-              ),
-            ],
-          ),
-          _SettingsSection(
-            title: 'Application',
-            children: [
-              // Version info
-              _SettingsTile(
-                icon: Icons.info_outline,
-                title: 'Version',
-                subtitle: '1.0.0',
-              ),
-              
-              // Privacy policy
-              _SettingsTile(
-                icon: Icons.privacy_tip_outlined,
-                title: 'Politique de confidentialité',
-                onTap: () {
-                  // Show privacy policy
-                },
-              ),
-              
-              // About
-              _SettingsTile(
-                icon: Icons.help_outline,
-                title: 'À propos',
-                onTap: () {
-                  // Show about dialog
-                },
-              ),
-            ],
-          ),
+          _buildThemeSection(),
+          _buildDataSection(),
+          _buildAboutSection(),
         ],
       ),
     );
   }
-}
 
-class _SettingsSection extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  const _SettingsSection({
-    required this.title,
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildThemeSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
           child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+            'Apparence',
+            style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: children,
-          ),
+        BlocBuilder<ThemeBloc, ThemeState>(
+          builder: (context, state) {
+            return ListTile(
+              leading: const Icon(Icons.brightness_6),
+              title: const Text('Thème'),
+              subtitle: Text(
+                state.themeMode == ThemeMode.dark
+                    ? 'Sombre'
+                    : state.themeMode == ThemeMode.light
+                        ? 'Clair'
+                        : 'Système',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showThemeDialog(context),
+            );
+          },
         ),
+        const Divider(),
       ],
     );
   }
-}
 
-class _SettingsTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-
-  const _SettingsTile({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: onTap != null
-          ? const BorderRadius.all(Radius.circular(16))
-          : BorderRadius.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 12.0,
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                size: 20,
-                color: AppColors.primary,
-              ),
+  Widget _buildDataSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
+          child: Text(
+            'Données',
+            style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.backup),
+          title: const Text('Sauvegarde et restauration'),
+          subtitle: const Text('Sauvegarder ou restaurer vos données'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            // TODO: Implémenter la sauvegarde et restauration
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Fonctionnalité en cours de développement'),
+              ),
+            );
+          },
+        ),
+        ListTile(
+          leading: const Icon(Icons.delete_outline),
+          title: const Text('Supprimer toutes les données'),
+          subtitle: const Text('Effacer définitivement vos données'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _showDeleteConfirmationDialog(),
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
+          child: Text(
+            'À propos',
+            style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: const Text('Informations'),
+          subtitle: Text('Version ${_packageInfo.version} (${_packageInfo.buildNumber})'),
+          onTap: () {},
+        ),
+        ListTile(
+          leading: const Icon(Icons.code),
+          title: const Text('Licences'),
+          subtitle: const Text('Licences des bibliothèques utilisées'),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            showLicensePage(
+              context: context,
+              applicationName: 'Correction Auto',
+              applicationVersion: '${_packageInfo.version} (${_packageInfo.buildNumber})',
+              applicationIcon: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 48,
+                  height: 48,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(
+                      Icons.school,
+                      size: 48,
+                      color: Colors.blue,
+                    );
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
+  void _showThemeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Choisir un thème'),
+          content: BlocBuilder<ThemeBloc, ThemeState>(
+            builder: (context, state) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleSmall,
+                  _buildThemeOption(
+                    context,
+                    'Clair',
+                    Icons.light_mode,
+                    state.themeMode == ThemeMode.light,
+                    () {
+                      context.read<ThemeBloc>().add(const SetThemeMode(ThemeMode.light));
+                      Navigator.pop(context);
+                    },
                   ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
-                          ),
-                    ),
-                  ],
+                  _buildThemeOption(
+                    context,
+                    'Sombre',
+                    Icons.dark_mode,
+                    state.themeMode == ThemeMode.dark,
+                    () {
+                      context.read<ThemeBloc>().add(const SetThemeMode(ThemeMode.dark));
+                      Navigator.pop(context);
+                    },
+                  ),
+                  _buildThemeOption(
+                    context,
+                    'Système',
+                    Icons.brightness_auto,
+                    state.themeMode == ThemeMode.system,
+                    () {
+                      context.read<ThemeBloc>().add(const SetThemeMode(ThemeMode.system));
+                      Navigator.pop(context);
+                    },
+                  ),
                 ],
-              ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler'),
             ),
-            if (trailing != null) trailing!,
           ],
-        ),
-      ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext context,
+    String title,
+    IconData icon,
+    bool selected,
+    VoidCallback onTap,
+  ) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: selected ? Icon(Icons.check, color: Colors.blue) : null,
+      onTap: onTap,
+    );
+  }
+
+  void _showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Supprimer toutes les données ?'),
+          content: const Text(
+            'Cette action supprimera définitivement toutes vos données. Cette action est irréversible.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                // TODO: Implémenter la suppression des données
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Données supprimées')),
+                );
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Supprimer'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
